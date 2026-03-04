@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BR Renew Solar</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{
+  --ink:#0d1f12; --ink2:#1a3320; --ink3:#2d5a3d;
+  --leaf:#16a34a; --leaf2:#22c55e; --leaf3:#86efac;
+  --gold:#d4a839; --gold2:#f5c842; --gold3:#fef3c7;
+  --cream:#f8fdf9; --white:#ffffff;
+  --border:#c8e6d1; --border2:#e8f5ec;
+  --muted:#6b7e6f; --shadow:0 4px 24px rgba(13,31,18,.10);
+  --r:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{min-height:100vh;}
+body{font-family:'Outfit',sans-serif;background:var(--cream);color:var(--ink);}
+
+/* BRAND TYPOGRAPHY — Cormorant Garamond, editorial luxury */
+.brand-wordmark{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:700;
+  font-size:1.55rem;
+  letter-spacing:0.06em;
+  line-height:1;
+  background:linear-gradient(135deg,#fff 0%,var(--gold2) 38%,#a8e6c0 72%,#fff 100%);
+  background-size:200% 200%;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:shimmer 4s ease infinite;
+}
+@keyframes shimmer{0%,100%{background-position:0% 50%;}50%{background-position:100% 50%;}}
+
+/* NAV */
+.nav{
+  background:linear-gradient(180deg,var(--ink) 0%,var(--ink2) 100%);
+  position:sticky;top:0;z-index:300;
+  box-shadow:0 2px 24px rgba(0,0,0,.4);
+  border-bottom:1px solid rgba(212,168,57,.25);
+}
+.nav-inner{
+  max-width:1080px;margin:0 auto;
+  padding:0 20px;height:62px;
+  display:flex;align-items:center;gap:6px;
+}
+.nav-brand{
+  display:flex;align-items:center;gap:11px;
+  margin-right:auto;text-decoration:none;
+  padding:6px 10px 6px 6px;border-radius:10px;
+  transition:background .2s;
+}
+.nav-brand:hover{background:rgba(255,255,255,.05);}
+.nav-sun{
+  width:36px;height:36px;border-radius:50%;flex-shrink:0;
+  background:radial-gradient(circle at 35% 35%,#fef9c3,#f59e0b);
+  display:flex;align-items:center;justify-content:center;font-size:18px;
+  box-shadow:0 0 0 3px rgba(245,200,66,.22),0 2px 12px rgba(245,158,11,.35);
+}
+.nav-text{display:flex;flex-direction:column;}
+.nav-sub{font-size:.58rem;color:rgba(134,239,172,.7);font-weight:600;letter-spacing:.1em;margin-top:2px;text-transform:uppercase;}
+
+.nav-tabs{display:flex;gap:2px;}
+.ntab{
+  padding:8px 15px;border-radius:9px;border:none;
+  font-family:'Outfit',sans-serif;font-size:.82rem;font-weight:600;
+  cursor:pointer;transition:all .2s;
+  background:transparent;color:rgba(255,255,255,.55);
+  display:flex;align-items:center;gap:6px;
+}
+.ntab:hover{background:rgba(255,255,255,.08);color:rgba(255,255,255,.85);}
+.ntab.on{background:rgba(212,168,57,.18);color:var(--gold2);border:1px solid rgba(212,168,57,.3);}
+.ntab-icon{font-size:.9rem;}
+
+.nav-logout{
+  padding:7px 13px;border-radius:8px;
+  border:1px solid rgba(239,68,68,.3);
+  background:rgba(239,68,68,.08);color:#fca5a5;
+  font-family:'Outfit',sans-serif;font-size:.78rem;font-weight:600;
+  cursor:pointer;transition:all .2s;margin-left:6px;display:none;
+}
+.nav-logout:hover{background:rgba(239,68,68,.2);}
+.nav-logout.show{display:flex;align-items:center;gap:5px;}
+
+/* SCREEN CONTAINER */
+.scr{display:none;max-width:1080px;margin:0 auto;padding:28px 16px 60px;}
+.scr.on{display:block;}
+
+/* ═══ REPORT FORM HERO ═══ */
+.hero{
+  border-radius:20px;padding:30px 36px;margin-bottom:26px;
+  background:linear-gradient(135deg,var(--ink) 0%,var(--ink2) 45%,#1e4a2a 100%);
+  position:relative;overflow:hidden;
+  box-shadow:0 12px 40px rgba(13,31,18,.3);
+  border:1px solid rgba(212,168,57,.2);
+}
+.hero::before{content:'';position:absolute;top:-100px;right:-100px;width:320px;height:320px;background:radial-gradient(circle,rgba(212,168,57,.12) 0%,transparent 65%);border-radius:50%;}
+.hero::after{content:'☀';position:absolute;right:36px;top:50%;transform:translateY(-50%);font-size:7rem;opacity:.04;pointer-events:none;}
+.hero-row{display:flex;align-items:center;gap:18px;position:relative;z-index:1;}
+.hero-sun{
+  width:58px;height:58px;border-radius:50%;flex-shrink:0;
+  background:radial-gradient(circle at 35% 35%,#fef9c3,#f59e0b);
+  display:flex;align-items:center;justify-content:center;font-size:28px;
+  box-shadow:0 0 0 6px rgba(245,200,66,.18),0 6px 24px rgba(245,158,11,.4);
+  animation:glow 3s ease-in-out infinite;
+}
+@keyframes glow{0%,100%{box-shadow:0 0 0 6px rgba(245,200,66,.18),0 6px 24px rgba(245,158,11,.4);}50%{box-shadow:0 0 0 12px rgba(245,200,66,.1),0 6px 32px rgba(245,158,11,.55);}}
+.hero-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:2.4rem;font-weight:700;letter-spacing:.07em;
+  background:linear-gradient(120deg,#fff 0%,var(--gold2) 40%,#a8e6c0 80%,#fff 100%);
+  background-size:220% 220%;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:shimmer 4s ease infinite;
+  line-height:1.05;
+}
+.hero-sub{font-size:.78rem;color:rgba(134,239,172,.75);margin-top:7px;font-weight:500;letter-spacing:.03em;}
+.hero-badge{
+  margin-left:auto;flex-shrink:0;
+  background:rgba(212,168,57,.15);border:1px solid rgba(212,168,57,.3);
+  color:var(--gold2);padding:8px 18px;border-radius:999px;
+  font-size:.7rem;font-weight:700;letter-spacing:.08em;white-space:nowrap;
+}
+
+/* STAT CARDS */
+.stat-row{display:none;gap:14px;margin-bottom:22px;grid-template-columns:repeat(4,1fr);}
+.stat-row.on{display:grid;}
+.scard{
+  background:var(--white);border-radius:var(--r);padding:16px 18px;
+  box-shadow:var(--shadow);border-left:4px solid var(--leaf);
+  position:relative;overflow:hidden;animation:up .4s ease both;
+}
+@keyframes up{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+.scard::after{content:attr(data-i);position:absolute;top:8px;right:12px;font-size:1.9rem;opacity:.07;}
+.scard.s1{border-left-color:#16a34a;}.scard.s2{border-left-color:#7c3aed;}
+.scard.s3{border-left-color:#d97706;}.scard.s4{border-left-color:#0891b2;}
+.sc-lbl{font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:5px;}
+.sc-val{font-size:1.35rem;font-weight:800;color:var(--ink);line-height:1;}
+.sc-val.sm{font-size:1rem;}
+.sc-note{font-size:.68rem;color:#9ca3af;margin-top:4px;}
+
+/* SHEET */
+.sheet{background:var(--white);border-radius:18px;box-shadow:var(--shadow),0 0 0 1px var(--border2);overflow:hidden;margin-bottom:22px;}
+.sheet-head{background:linear-gradient(90deg,var(--ink),var(--ink2));padding:13px 22px;display:flex;align-items:center;gap:8px;}
+.sheet-head span{color:#fff;font-weight:700;font-size:.86rem;}
+table{width:100%;border-collapse:collapse;}
+thead tr{background:#f0fdf4;}
+thead th{padding:9px 12px;text-align:left;font-size:.63rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#166534;border-bottom:2px solid #bbf7d0;white-space:nowrap;}
+thead th:first-child{width:32px;color:#9ca3af;text-align:center;}
+tbody tr{border-bottom:1px solid #f0fdf4;transition:background .1s;}
+tbody tr:hover{background:#fafffe;}
+tbody tr:last-child{border-bottom:none;}
+td{padding:8px 12px;vertical-align:middle;font-size:.83rem;}
+td:first-child{text-align:center;font-size:.68rem;font-weight:700;color:#9ca3af;background:#fafafa;border-right:1px solid #f0f0f0;}
+.fl{font-weight:700;color:#1f2937;font-size:.81rem;}.fs{font-size:.66rem;color:#9ca3af;margin-top:2px;}
+.req{color:#dc2626;margin-left:2px;}
+input[type=text],input[type=tel],input[type=number],select{width:100%;padding:7px 11px;border:1.5px solid #e5e7eb;border-radius:9px;font-family:'Outfit',sans-serif;font-size:.83rem;color:#1f2937;background:#fafafa;transition:all .18s;outline:none;}
+input:focus,select:focus{border-color:var(--leaf);background:#fff;box-shadow:0 0 0 3px rgba(22,163,74,.1);}
+input.ok{border-color:var(--leaf);background:#f0fdf4;}
+input.er{border-color:#ef4444;background:#fff5f5;}
+select{cursor:pointer;}
+.ac{display:inline-flex;align-items:center;padding:5px 11px;border-radius:8px;font-weight:700;font-size:.82rem;color:var(--ink2);background:linear-gradient(135deg,#f0fdf4,#dcfce7);min-width:100px;}
+.ac.hi{background:linear-gradient(135deg,#fef3c7,#fde68a);color:#78350f;font-size:.95rem;font-weight:800;}
+.ac.mt{color:#9ca3af;font-weight:500;font-size:.75rem;background:#f9fafb;}
+.ac.wn{background:linear-gradient(135deg,#fffbeb,#fef3c7);color:#92400e;}
+.ac.no{background:linear-gradient(135deg,#fef2f2,#fee2e2);color:#991b1b;}
+.bx{display:inline-flex;align-items:center;padding:2px 9px;border-radius:999px;font-size:.67rem;font-weight:800;white-space:nowrap;}
+.bx.g{background:#dcfce7;color:#14532d;}.bx.a{background:#fef3c7;color:#92400e;}
+.bx.r{background:#fee2e2;color:#991b1b;}.bx.b{background:#dbeafe;color:#1e3a8a;}
+.bx.gr{background:#f3f4f6;color:#6b7280;}
+.sr td{background:linear-gradient(90deg,#f0fdf4,#f8fef8);padding:5px 12px;font-size:.63rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:#166534;border-top:2px solid #bbf7d0;border-bottom:1px solid #bbf7d0;}
+.lnote{padding:10px 14px;background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1.5px solid #fcd34d;border-radius:8px;font-size:.77rem;font-weight:600;color:#78350f;}
+.vm{font-size:.67rem;color:#dc2626;margin-top:2px;font-weight:600;display:none;}.vm.s{display:block;}
+.tip{display:inline-block;width:14px;height:14px;background:#bbf7d0;color:#166534;border-radius:50%;font-size:8px;font-weight:900;text-align:center;line-height:14px;cursor:help;margin-left:3px;position:relative;}
+.tip:hover::after{content:attr(data-tip);position:absolute;left:17px;top:-2px;background:#1f2937;color:#fff;padding:3px 8px;border-radius:5px;font-size:.65rem;white-space:nowrap;z-index:100;pointer-events:none;}
+
+/* BUTTONS */
+.brow{display:flex;gap:12px;justify-content:flex-end;align-items:center;flex-wrap:wrap;margin-top:6px;}
+.btn-ghost{padding:11px 22px;border-radius:10px;border:2px solid var(--ink3);background:#fff;color:var(--ink2);font-family:'Outfit',sans-serif;font-weight:700;font-size:.85rem;cursor:pointer;transition:all .2s;}
+.btn-ghost:hover{background:#f0fdf4;}
+.btn-prime{
+  padding:12px 30px;border-radius:10px;border:none;
+  background:linear-gradient(135deg,var(--ink),var(--ink3) 50%,var(--leaf));
+  color:#fff;font-family:'Outfit',sans-serif;font-weight:800;font-size:.88rem;
+  cursor:pointer;display:flex;align-items:center;gap:8px;
+  box-shadow:0 4px 18px rgba(22,163,74,.32);transition:all .2s;
+}
+.btn-prime:hover{transform:translateY(-2px);box-shadow:0 8px 26px rgba(22,163,74,.42);}
+.btn-prime:disabled{opacity:.5;cursor:not-allowed;transform:none!important;}
+
+/* ═══ CUSTOMER LIST ═══ */
+.list-hero{
+  background:linear-gradient(135deg,var(--ink2),var(--ink3));
+  border-radius:16px;padding:22px 28px;margin-bottom:22px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;
+  border:1px solid rgba(212,168,57,.15);
+}
+.list-hero-title{font-family:'Cormorant Garamond',serif;font-size:1.7rem;font-weight:700;letter-spacing:.05em;color:#fff;}
+.list-hero-sub{font-size:.77rem;color:rgba(134,239,172,.75);margin-top:4px;}
+.list-controls{display:flex;gap:10px;margin-bottom:18px;align-items:center;flex-wrap:wrap;}
+.search-wrap{flex:1;min-width:200px;position:relative;}
+.search-wrap input{width:100%;padding:10px 16px 10px 40px;border:1.5px solid var(--border);border-radius:11px;font-family:'Outfit',sans-serif;font-size:.86rem;background:#fff;outline:none;transition:all .2s;}
+.search-wrap input:focus{border-color:var(--leaf);box-shadow:0 0 0 3px rgba(22,163,74,.1);}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:.88rem;pointer-events:none;}
+.lcount{background:#fff;border:1.5px solid var(--border);border-radius:11px;padding:10px 17px;font-size:.8rem;font-weight:700;color:var(--ink2);white-space:nowrap;}
+.refresh-btn{
+  width:42px;height:42px;border-radius:10px;
+  border:1.5px solid var(--border);background:#fff;
+  cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;
+  transition:all .35s;
+}
+.refresh-btn:hover{background:#f0fdf4;border-color:var(--leaf);transform:rotate(180deg);}
+
+.rlist{display:flex;flex-direction:column;gap:10px;}
+.rcard{
+  background:#fff;border-radius:14px;padding:16px 20px;
+  box-shadow:var(--shadow),0 0 0 1px var(--border2);
+  display:flex;align-items:center;gap:14px;
+  animation:up .3s ease both;transition:box-shadow .2s,transform .15s;
+}
+.rcard:hover{box-shadow:0 8px 30px rgba(13,31,18,.12),0 0 0 1px #bbf7d0;transform:translateY(-1px);}
+.rcard-av{
+  width:46px;height:46px;border-radius:12px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--ink2),var(--leaf));
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:700;color:#fff;letter-spacing:.05em;
+}
+.rcard-info{flex:1;min-width:0;}
+.rcard-name{font-weight:700;font-size:.92rem;color:var(--ink);}
+.rcard-mob{font-size:.76rem;color:var(--muted);margin-top:2px;}
+.rcard-tags{display:flex;gap:5px;margin-top:6px;flex-wrap:wrap;}
+.tag{padding:2px 8px;border-radius:999px;font-size:.63rem;font-weight:700;}
+.tag.kw{background:#dcfce7;color:#14532d;}.tag.sub{background:#ede9fe;color:#5b21b6;}
+.tag.bnk{background:#dbeafe;color:#1d4ed8;}.tag.dt{background:#f3f4f6;color:#374151;}
+.rcard-emi{text-align:right;flex-shrink:0;padding:0 10px;}
+.rcard-emi-val{font-weight:800;font-size:.9rem;color:#d97706;}
+.rcard-emi-note{font-size:.68rem;color:#9ca3af;margin-top:2px;}
+.rcard-btns{display:flex;gap:7px;}
+.rcbtn{padding:8px 13px;border-radius:9px;border:1.5px solid var(--border);background:#fff;cursor:pointer;font-size:.74rem;font-weight:700;transition:all .18s;display:flex;align-items:center;gap:4px;color:var(--ink2);}
+.rcbtn:hover{background:#f0fdf4;border-color:var(--leaf);}
+.rcbtn.pdf{background:linear-gradient(135deg,var(--ink2),var(--leaf));color:#fff;border:none;box-shadow:0 3px 10px rgba(22,163,74,.28);}
+.rcbtn.pdf:hover{transform:translateY(-1px);box-shadow:0 5px 14px rgba(22,163,74,.38);}
+.rcbtn.del{color:#ef4444;border-color:#fecaca;}.rcbtn.del:hover{background:#fff5f5;}
+
+.empty-box{text-align:center;padding:56px 20px;background:#fff;border-radius:16px;box-shadow:var(--shadow),0 0 0 1px var(--border2);}
+.empty-icon{font-size:3rem;margin-bottom:14px;}
+.empty-t{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700;color:#374151;margin-bottom:6px;}
+.empty-s{font-size:.83rem;color:var(--muted);}
+
+/* ═══ ADMIN ═══ */
+.login-wrap{max-width:400px;margin:60px auto;}
+.login-card{
+  background:#fff;border-radius:20px;padding:40px 36px;
+  box-shadow:var(--shadow),0 0 0 1px var(--border2);text-align:center;
+}
+.login-icon{font-size:2.6rem;margin-bottom:14px;}
+.login-title{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:700;letter-spacing:.04em;margin-bottom:4px;}
+.login-sub{font-size:.82rem;color:var(--muted);margin-bottom:28px;}
+.li{width:100%;padding:11px 15px;border:1.5px solid var(--border);border-radius:10px;font-family:'Outfit',sans-serif;font-size:.9rem;outline:none;transition:all .2s;margin-bottom:11px;}
+.li:focus{border-color:var(--leaf);box-shadow:0 0 0 3px rgba(22,163,74,.1);}
+.lbtn{width:100%;padding:13px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--ink),var(--leaf));color:#fff;font-family:'Outfit',sans-serif;font-weight:800;font-size:.92rem;cursor:pointer;box-shadow:0 4px 16px rgba(22,163,74,.28);transition:all .2s;}
+.lbtn:hover{transform:translateY(-1px);}
+.lerr{font-size:.76rem;color:#dc2626;font-weight:600;margin-top:6px;display:none;}.lerr.s{display:block;}
+
+.admin-page{display:none;}
+.admin-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:26px;flex-wrap:wrap;gap:12px;}
+.admin-title{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:700;letter-spacing:.04em;}
+.admin-title span{display:block;font-family:'Outfit',sans-serif;font-size:.8rem;font-weight:500;color:var(--muted);letter-spacing:0;margin-top:2px;}
+
+.dg{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px;}
+.dc{
+  background:#fff;border-radius:15px;padding:22px 22px 18px;
+  box-shadow:var(--shadow),0 0 0 1px var(--border2);
+  position:relative;overflow:hidden;
+}
+.dc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--bar,var(--leaf));}
+.dc-num{font-family:'Cormorant Garamond',serif;font-size:2.6rem;font-weight:700;color:var(--ink);line-height:1;}
+.dc-lbl{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-top:5px;}
+.dc-icon{position:absolute;right:16px;top:14px;font-size:1.9rem;opacity:.1;}
+
+.sec-title{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:700;letter-spacing:.04em;margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+.sec-title::after{content:'';flex:1;height:1px;background:var(--border2);}
+.admin-tbl{background:#fff;border-radius:14px;box-shadow:var(--shadow),0 0 0 1px var(--border2);overflow:hidden;}
+
+/* MODAL */
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;align-items:center;justify-content:center;padding:20px;}
+.modal-ov.on{display:flex;}
+.modal{background:#fff;border-radius:18px;padding:28px 30px;max-width:400px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:up .22s ease;}
+.modal h3{font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:700;margin-bottom:7px;}
+.modal p{font-size:.84rem;color:var(--muted);margin-bottom:22px;}
+.modal-btns{display:flex;gap:10px;justify-content:flex-end;}
+.m-cancel{padding:9px 20px;border-radius:9px;border:1.5px solid var(--border);background:#fff;cursor:pointer;font-weight:700;font-size:.83rem;}
+.m-del{padding:9px 20px;border-radius:9px;border:none;background:#ef4444;color:#fff;cursor:pointer;font-weight:700;font-size:.83rem;}
+
+@media(max-width:760px){.stat-row{grid-template-columns:repeat(2,1fr);}.dg{grid-template-columns:repeat(2,1fr);}.hero-badge{display:none;}.hero-title{font-size:1.7rem;}.rcard-btns{flex-direction:column;}}
+@media(max-width:500px){.dg{grid-template-columns:1fr 1fr;}thead th:nth-child(4),td:nth-child(4){display:none;}td,thead th{padding:6px 8px;font-size:.77rem;}}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="nav-brand" href="#" onclick="goTo('report');return false;">
+      <div class="nav-sun">☀</div>
+      <div class="nav-text">
+        <span class="brand-wordmark">BR Renew Solar</span>
+        <span class="nav-sub">Solar Energy Solutions</span>
+      </div>
+    </a>
+    <div class="nav-tabs">
+      <button class="ntab on" id="tab-report" onclick="goTo('report')"><span class="ntab-icon">📋</span>New Report</button>
+      <button class="ntab" id="tab-list"   onclick="goTo('list')">  <span class="ntab-icon">👥</span>Customers</button>
+      <button class="ntab" id="tab-admin"  onclick="goTo('admin')"> <span class="ntab-icon">📊</span>Admin</button>
+    </div>
+    <button class="nav-logout" id="nav-logout" onclick="adminLogout()">🚪 Logout</button>
+  </div>
+</nav>
+
+<!-- ═══ REPORT SCREEN ═══ -->
+<div class="scr on" id="scr-report">
+  <div class="hero">
+    <div class="hero-row">
+      <div class="hero-sun">☀</div>
+      <div>
+        <div class="hero-title">BR Renew Solar</div>
+        <div class="hero-sub">Solar Rooftop Report Generator &nbsp;·&nbsp; PM Surya Ghar Muft Bijli Yojana &nbsp;·&nbsp; Andhra Pradesh</div>
+      </div>
+      <div class="hero-badge">🇮🇳 Andhra Pradesh</div>
+    </div>
+  </div>
+
+  <div class="stat-row" id="summaryCards">
+    <div class="scard s1" data-i="⚡"><div class="sc-lbl">Proposed Capacity</div><div class="sc-val" id="sc-cap">--</div><div class="sc-note" id="sc-gen">--</div></div>
+    <div class="scard s2" data-i="🏛"><div class="sc-lbl">Subsidy Amount</div><div class="sc-val" id="sc-sub">--</div><div class="sc-note" id="sc-subnote">--</div></div>
+    <div class="scard s3" data-i="📅"><div class="sc-lbl">EMI Per Month</div><div class="sc-val sm" id="sc-emi">--</div><div class="sc-note" id="sc-eminote">--</div></div>
+    <div class="scard s4" data-i="💰"><div class="sc-lbl">Total Payable</div><div class="sc-val sm" id="sc-total">--</div><div class="sc-note" id="sc-totalnote">--</div></div>
+  </div>
+
+  <div class="sheet">
+    <div class="sheet-head"><span>📋</span><span>Customer Details &amp; System Configuration</span></div>
+    <table>
+      <thead><tr><th>#</th><th style="width:182px">Field</th><th>Enter Value</th><th style="width:172px">Auto-Calculated</th><th style="width:126px">Status</th></tr></thead>
+      <tbody>
+        <tr class="sr"><td colspan="5">👤 &nbsp;Customer Information</td></tr>
+        <tr>
+          <td>1</td>
+          <td><div class="fl">Customer Name <span class="req">*</span></div><div class="fs">Full name as per Aadhaar</div></td>
+          <td><input type="text" id="f-name" placeholder="e.g. Ravi Kumar" oninput="recalc()"/><div class="vm" id="err-name">Required</div></td>
+          <td><span class="ac mt" id="ac-name">--</span></td><td><span class="bx gr" id="st-name">Pending</span></td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td><div class="fl">Mobile Number <span class="req">*</span></div><div class="fs">10-digit Indian mobile</div></td>
+          <td><input type="tel" id="f-mobile" placeholder="e.g. 9876543210" maxlength="10" oninput="recalc()"/><div class="vm" id="err-mobile">Valid 10-digit number required</div></td>
+          <td><span class="ac mt" id="ac-mobile">--</span></td><td><span class="bx gr" id="st-mobile">Pending</span></td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td><div class="fl">Consumer Type <span class="req">*</span></div><div class="fs">Residential or Commercial</div></td>
+          <td><select id="f-type" onchange="recalc()"><option value="">-- Select --</option><option value="residential">🏠 Residential</option><option value="commercial">🏢 Commercial</option></select></td>
+          <td><span class="ac mt" id="ac-type">--</span></td><td><span class="bx gr" id="st-type">Pending</span></td>
+        </tr>
+        <tr class="sr"><td colspan="5">⚡ &nbsp;Consumption &amp; System Sizing</td></tr>
+        <tr>
+          <td>4</td>
+          <td><div class="fl">Avg. Monthly Units <span class="req">*</span><span class="tip" data-tip="From your electricity bill (kWh)">?</span></div><div class="fs">From electricity bill</div></td>
+          <td><input type="number" id="f-units" placeholder="e.g. 480" min="1" max="1200" oninput="recalc()"/><div class="vm" id="err-units">Enter 1–1200</div></td>
+          <td><span class="ac mt" id="ac-units">--</span></td><td><span class="bx gr" id="st-units">Pending</span></td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td><div class="fl">Proposed Capacity</div><div class="fs">Auto from consumption</div></td>
+          <td><input type="text" value="Auto-calculated" disabled style="background:#f3f4f6;color:#9ca3af;cursor:not-allowed;"/></td>
+          <td><span class="ac mt" id="ac-cap">--</span></td><td><span class="bx gr" id="st-cap">Waiting</span></td>
+        </tr>
+        <tr>
+          <td>6</td>
+          <td><div class="fl">Est. Annual Generation</div><div class="fs">Based on AP irradiance</div></td>
+          <td><input type="text" value="Auto-calculated" disabled style="background:#f3f4f6;color:#9ca3af;cursor:not-allowed;"/></td>
+          <td><span class="ac mt" id="ac-gen">--</span></td><td><span class="bx gr" id="st-gen">Waiting</span></td>
+        </tr>
+        <tr class="sr"><td colspan="5">🏛 &nbsp;Subsidy Eligibility</td></tr>
+        <tr>
+          <td>7</td>
+          <td><div class="fl">Subsidy Eligibility</div><div class="fs">PM Surya Ghar scheme</div></td>
+          <td><input type="text" value="Auto-determined" disabled style="background:#f3f4f6;color:#9ca3af;cursor:not-allowed;"/></td>
+          <td><span class="ac mt" id="ac-sub">--</span></td><td><span class="bx gr" id="st-sub">Waiting</span></td>
+        </tr>
+        <tr>
+          <td>8</td>
+          <td><div class="fl">Subsidy Amount</div><div class="fs">Central govt. subsidy</div></td>
+          <td><input type="text" value="Auto-calculated" disabled style="background:#f3f4f6;color:#9ca3af;cursor:not-allowed;"/></td>
+          <td><span class="ac mt" id="ac-subamt">--</span></td><td><span class="bx gr" id="st-subamt">Waiting</span></td>
+        </tr>
+        <tr class="sr"><td colspan="5">🏦 &nbsp;Loan &amp; EMI Configuration</td></tr>
+        <tr id="row-bank">
+          <td>9</td>
+          <td><div class="fl">Select Bank <span class="tip" data-tip="EMI tool is for 3 kW systems only">?</span></div><div class="fs">Participating bank</div></td>
+          <td id="bank-td">
+            <select id="f-bank" onchange="recalc()">
+              <option value="">-- Select Bank --</option>
+              <option value="1">State Bank of India</option>
+              <option value="2">Canara Bank</option>
+              <option value="3">Bank of Baroda</option>
+              <option value="4">Union Bank of India</option>
+              <option value="5">Andhra Pradesh Grameena Bank</option>
+            </select>
+          </td>
+          <td><span class="ac mt" id="ac-bank">--</span></td><td><span class="bx gr" id="st-bank">Waiting</span></td>
+        </tr>
+        <tr id="row-subpay">
+          <td>10</td>
+          <td><div class="fl">Subsidy Payment <span class="tip" data-tip="Customer pays subsidy upfront?">?</span></div><div class="fs">Deducted from principal</div></td>
+          <td><select id="f-subpay" onchange="recalc()"><option value="yes">Yes — Deduct from loan</option><option value="no">No — Include in loan</option></select></td>
+          <td><span class="ac mt" id="ac-subpay">--</span></td><td><span class="bx gr" id="st-subpay">Waiting</span></td>
+        </tr>
+        <tr id="row-tenure">
+          <td>11</td>
+          <td><div class="fl">Loan Tenure (Years)</div><div class="fs">5–20 years</div></td>
+          <td>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <input type="range" id="f-tenure" min="5" max="20" value="10" oninput="recalc()" style="flex:1;accent-color:#16a34a;border:none;background:transparent;padding:4px 0;"/>
+              <span id="tenure-lbl" style="font-weight:800;color:#14532d;min-width:44px;text-align:right;font-size:.88rem;">10 yrs</span>
+            </div>
+          </td>
+          <td><span class="ac mt" id="ac-tenure">--</span></td><td><span class="bx gr" id="st-tenure">Waiting</span></td>
+        </tr>
+        <tr id="row-princ">
+          <td>12</td>
+          <td><div class="fl">Effective Principal</div><div class="fs">After subsidy deduction</div></td>
+          <td><input type="text" value="Auto-calculated" disabled style="background:#f3f4f6;color:#9ca3af;cursor:not-allowed;"/></td>
+          <td><span class="ac mt" id="ac-princ">--</span></td><td><span class="bx gr" id="st-princ">Waiting</span></td>
+        </tr>
+        <tr id="row-emi">
+          <td>13</td>
+          <td><div class="fl" style="color:#d97706;">EMI Per Month</div><div class="fs">Monthly repayment</div></td>
+          <td><input type="text" value="Auto-calculated" disabled style="background:#f3f4f6;color:#9ca3af;cursor:not-allowed;"/></td>
+          <td><span class="ac mt" id="ac-emi">--</span></td><td><span class="bx gr" id="st-emi">Waiting</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="brow">
+    <button class="btn-ghost" onclick="resetForm()">↺ Reset</button>
+    <button class="btn-prime" id="btn-gen" onclick="startPDF()">📄 Download PDF Report</button>
+  </div>
+  <div style="text-align:center;margin-top:18px;font-size:.72rem;color:#9ca3af;">
+    BR Renew Solar &nbsp;·&nbsp; PM Surya Ghar Muft Bijli Yojana &nbsp;·&nbsp; Andhra Pradesh
+  </div>
+</div>
+
+<!-- ═══ CUSTOMER LIST SCREEN ═══ -->
+<div class="scr" id="scr-list">
+  <div class="list-hero">
+    <div>
+      <div class="list-hero-title">Customer Reports</div>
+      <div class="list-hero-sub">All generated reports — search, download or share PDFs</div>
+    </div>
+    <div id="list-badge" style="background:rgba(212,168,57,.18);border:1px solid rgba(212,168,57,.3);color:#f5c842;padding:8px 18px;border-radius:999px;font-size:.78rem;font-weight:700;">0 Reports</div>
+  </div>
+  <div class="list-controls">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="list-search" placeholder="Search by name or mobile number…" oninput="renderList()"/>
+    </div>
+    <div class="lcount" id="lcount">0 results</div>
+    <button class="refresh-btn" onclick="renderList()" title="Refresh list">🔄</button>
+  </div>
+  <div class="rlist" id="rlist"></div>
+</div>
+
+<!-- ═══ ADMIN SCREEN ═══ -->
+<div class="scr" id="scr-admin">
+  <!-- Login -->
+  <div id="admin-login">
+    <div class="login-wrap">
+      <div class="login-card">
+        <div class="login-icon">🔐</div>
+        <div class="login-title">Admin Panel</div>
+        <div class="login-sub">Enter admin password to access business statistics</div>
+        <input type="password" class="li" id="a-pass" placeholder="Admin password" onkeydown="if(event.key==='Enter')tryLogin()"/>
+        <button class="lbtn" onclick="tryLogin()">Access Dashboard</button>
+        <div class="lerr" id="a-err">Incorrect password. Please try again.</div>
+      </div>
+    </div>
+  </div>
+  <!-- Dashboard -->
+  <div class="admin-page" id="admin-dash">
+    <div class="admin-header">
+      <div>
+        <div class="admin-title">Business Dashboard <span>Live statistics from all generated reports</span></div>
+      </div>
+    </div>
+    <div class="dg">
+      <div class="dc" style="--bar:#16a34a;"><div class="dc-icon">👥</div><div class="dc-num" id="da-total">0</div><div class="dc-lbl">Total Customers</div></div>
+      <div class="dc" style="--bar:#7c3aed;"><div class="dc-icon">🏛</div><div class="dc-num" id="da-subelig">0</div><div class="dc-lbl">Subsidy Eligible</div></div>
+      <div class="dc" style="--bar:#d97706;"><div class="dc-icon">⚡</div><div class="dc-num" id="da-3kw">0</div><div class="dc-lbl">3 kW Systems</div></div>
+      <div class="dc" style="--bar:#0891b2;"><div class="dc-icon">💰</div><div class="dc-num" id="da-subrev">₹0</div><div class="dc-lbl">Total Subsidy Value</div></div>
+      <div class="dc" style="--bar:#f59e0b;"><div class="dc-icon">🏠</div><div class="dc-num" id="da-res">0</div><div class="dc-lbl">Residential</div></div>
+      <div class="dc" style="--bar:#6b7280;"><div class="dc-icon">🏢</div><div class="dc-num" id="da-com">0</div><div class="dc-lbl">Commercial</div></div>
+    </div>
+    <div class="sec-title">📋 Recent Reports</div>
+    <div class="admin-tbl">
+      <table>
+        <thead><tr><th>#</th><th>Customer</th><th>Mobile</th><th>Capacity</th><th>Subsidy</th><th>EMI / Month</th><th>Date</th></tr></thead>
+        <tbody id="da-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE MODAL -->
+<div class="modal-ov" id="del-modal">
+  <div class="modal">
+    <h3>Delete this report?</h3>
+    <p>This will permanently remove the customer's report from the list. It cannot be recovered.</p>
+    <div class="modal-btns">
+      <button class="m-cancel" onclick="closeModal()">Cancel</button>
+      <button class="m-del" id="m-del-btn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+//  CONFIG
+// ══════════════════════════════════════════
+var ADMIN_PWD  = "brrenew2024";
+var STORE_KEY  = "brrenew_v2";
+var LOGO_DATA  = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MjAgMTUwIiB3aWR0aD0iNDIwIiBoZWlnaHQ9IjE1MCI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImxlYWZHcmFkIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3R5bGU9InN0b3AtY29sb3I6IzJFQ0M3MSIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiMxQTZCM0MiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InBhbmVsR3JhZCIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiMzNDk4REIiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdHlsZT0ic3RvcC1jb2xvcjojMUE1Mjc2Ii8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCB4PSIxNSIgeT0iNDAiIHdpZHRoPSI4MCIgaGVpZ2h0PSI1NSIgcng9IjQiIGZpbGw9InVybCgjcGFuZWxHcmFkKSIgb3BhY2l0eT0iMC45Ii8+CiAgPGxpbmUgeDE9IjQxIiB5MT0iNDAiIHgyPSI0MSIgeTI9Ijk1IiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjEuNSIgb3BhY2l0eT0iMC41Ii8+CiAgPGxpbmUgeDE9IjY3IiB5MT0iNDAiIHgyPSI2NyIgeTI9Ijk1IiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjEuNSIgb3BhY2l0eT0iMC41Ii8+CiAgPGxpbmUgeDE9IjE1IiB5MT0iNTgiIHgyPSI5NSIgeTI9IjU4IiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjEuNSIgb3BhY2l0eT0iMC41Ii8+CiAgPGxpbmUgeDE9IjE1IiB5MT0iNzYiIHgyPSI5NSIgeTI9Ijc2IiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjEuNSIgb3BhY2l0eT0iMC41Ii8+CiAgPGNpcmNsZSBjeD0iMzAiIGN5PSI1MiIgcj0iNSIgZmlsbD0id2hpdGUiIG9wYWNpdHk9IjAuMjUiLz4KICA8cGF0aCBkPSJNNzUgMjUgUTExMCAyNSAxMTAgNjUgUTc1IDY1IDc1IDI1WiIgZmlsbD0idXJsKCNsZWFmR3JhZCkiIG9wYWNpdHk9IjAuOTUiLz4KICA8bGluZSB4MT0iNzUiIHkxPSIyNSIgeDI9IjExMCIgeTI9IjY1IiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjEuNSIgb3BhY2l0eT0iMC42Ii8+CiAgPGNpcmNsZSBjeD0iMTEwIiBjeT0iMjIiIHI9IjEyIiBmaWxsPSIjRkZCODAwIi8+CiAgPGcgc3Ryb2tlPSIjRkZCODAwIiBzdHJva2Utd2lkdGg9IjIuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIj4KICAgIDxsaW5lIHgxPSIxMTAiIHkxPSI0IiB4Mj0iMTEwIiB5Mj0iMCIvPgogICAgPGxpbmUgeDE9IjEyNCIgeTE9IjgiIHgyPSIxMjciIHkyPSI1Ii8+CiAgICA8bGluZSB4MT0iMTI4IiB5MT0iMjIiIHgyPSIxMzIiIHkyPSIyMiIvPgogIDwvZz4KICA8dGV4dCB4PSIxNDUiIHk9IjU4IiBmb250LWZhbWlseT0iJ1RyZWJ1Y2hldCBNUycsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjgiIGZvbnQtd2VpZ2h0PSI5MDAiIGZpbGw9IiMxQTUyNzYiIGxldHRlci1zcGFjaW5nPSIwIj5CUjwvdGV4dD4KICA8dGV4dCB4PSIxODIiIHk9IjU4IiBmb250LWZhbWlseT0iJ1RyZWJ1Y2hldCBNUycsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjgiIGZvbnQtd2VpZ2h0PSI0MDAiIGZpbGw9IiMyRUNDNzEiPiBSRU5FVzwvdGV4dD4KICA8dGV4dCB4PSIxNDUiIHk9IjgyIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGZvbnQtd2VpZ2h0PSI2MDAiIGZpbGw9IiM2NjYiIGxldHRlci1zcGFjaW5nPSIzIj5TT0xBUiBFTkVSR1kgU09MVVRJT05TPC90ZXh0PgogIDxyZWN0IHg9IjE0NSIgeT0iOTIiIHdpZHRoPSIyNTAiIGhlaWdodD0iMyIgcng9IjIiIGZpbGw9InVybCgjbGVhZkdyYWQpIi8+Cjwvc3ZnPg==";
+
+var BANKS = {
+  1:{name:"State Bank of India",group:"A"},
+  2:{name:"Canara Bank",group:"A"},
+  3:{name:"Bank of Baroda",group:"A"},
+  4:{name:"Union Bank of India",group:"B"},
+  5:{name:"Andhra Pradesh Grameena Bank",group:"B"}
+};
+
+// ══════════════════════════════════════════
+//  STORAGE
+// ══════════════════════════════════════════
+function getReports(){ try{return JSON.parse(localStorage.getItem(STORE_KEY)||"[]");}catch(e){return [];} }
+function saveReports(a){ localStorage.setItem(STORE_KEY,JSON.stringify(a)); }
+function addReport(r){
+  r.id=Date.now();
+  r.date=new Date().toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"});
+  var a=getReports(); a.unshift(r); saveReports(a);
+}
+function delReport(id){ saveReports(getReports().filter(function(r){return r.id!==id;})); }
+
+// ══════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════
+function goTo(name){
+  document.querySelectorAll('.scr').forEach(function(s){s.classList.remove('on');});
+  document.querySelectorAll('.ntab').forEach(function(b){b.classList.remove('on');});
+  document.getElementById('scr-'+name).classList.add('on');
+  document.getElementById('tab-'+name).classList.add('on');
+  if(name==='list') renderList();
+  if(name==='admin' && document.getElementById('admin-dash').style.display==='block') renderAdmin();
+}
+
+// ══════════════════════════════════════════
+//  BUSINESS LOGIC
+// ══════════════════════════════════════════
+function getCap(u){ u=parseFloat(u); if(!u||u<=0)return null; if(u<=350)return 3; if(u<=600)return 5; if(u<=720)return 6; if(u<=960)return 8; if(u<=1200)return 10; return null; }
+function getPrin(id){ return BANKS[id]&&BANKS[id].group==="A"?189000:198000; }
+function calcEMI(p,apr,yrs){ var r=apr/12/100,n=yrs*12; if(!r)return p/n; return p*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1); }
+function fmtINR(n){ return "Rs."+Math.round(n).toLocaleString("en-IN"); }
+function fmtSym(n){ return "\u20B9"+Math.round(n).toLocaleString("en-IN"); }
+function esc(s){ return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+// ══════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════
+var S={name:"",mobile:"",type:"",units:"",bankId:null,subpay:"yes",tenure:10,
+       capacity:null,subsidy:0,grossP:0,effP:0,emi:0};
+
+function recalc(){
+  S.name=G("f-name").value.trim(); S.mobile=G("f-mobile").value.trim();
+  S.type=G("f-type").value; S.units=G("f-units").value;
+  S.subpay=G("f-subpay").value;
+  S.tenure=parseInt(G("f-tenure").value)||10;
+  G("tenure-lbl").textContent=S.tenure+" yrs";
+  var be=G("f-bank"); S.bankId=(be&&be.value)?parseInt(be.value):null;
+  S.capacity=getCap(S.units);
+  S.subsidy=(S.type==="residential"&&S.capacity&&S.capacity>=3&&S.capacity<=10)?78000:0;
+  if(S.capacity===3&&S.bankId){
+    S.grossP=getPrin(S.bankId);
+    var d=(S.subpay==="yes"&&S.subsidy>0)?S.subsidy:0;
+    S.effP=S.grossP-d; S.emi=calcEMI(S.effP,6,S.tenure);
+  }else{S.grossP=0;S.effP=0;S.emi=0;if(S.capacity!==3)S.bankId=null;}
+  drawUI();
+}
+
+// ══════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════
+function G(id){return document.getElementById(id);}
+function H(id,h){G(id).innerHTML=h;}
+function A(t,c){return'<span class="ac '+(c||'')+'">'+t+'</span>';}
+function B(t,c){return'<span class="bx '+c+'">'+t+'</span>';}
+
+// ══════════════════════════════════════════
+//  DRAW FORM UI
+// ══════════════════════════════════════════
+function drawUI(){
+  var ok=/^[6-9]\d{9}$/.test(S.mobile);
+  /* Name */
+  if(S.name){H("ac-name",A(S.name));H("st-name",B("✓ Entered","g"));G("f-name").className="ok";}
+  else{H("ac-name",A("--","mt"));H("st-name",B("Pending","gr"));G("f-name").className="";}
+  /* Mobile */
+  if(S.mobile&&ok){H("ac-mobile",A(S.mobile));H("st-mobile",B("✓ Valid","g"));G("f-mobile").className="ok";G("err-mobile").className="vm";}
+  else if(S.mobile){H("ac-mobile",A("Invalid","mt"));H("st-mobile",B("✗ Invalid","r"));G("f-mobile").className="er";G("err-mobile").className="vm s";}
+  else{H("ac-mobile",A("--","mt"));H("st-mobile",B("Pending","gr"));G("f-mobile").className="";G("err-mobile").className="vm";}
+  /* Type */
+  if(S.type){H("ac-type",A(S.type==="residential"?"🏠 Residential":"🏢 Commercial"));H("st-type",B("✓ Set","g"));}
+  else{H("ac-type",A("--","mt"));H("st-type",B("Pending","gr"));}
+  /* Units */
+  if(S.units&&parseFloat(S.units)>0){H("ac-units",A(S.units+" kWh/mo"));H("st-units",B("✓ Entered","g"));G("f-units").className="ok";G("err-units").className="vm";}
+  else{H("ac-units",A("--","mt"));H("st-units",B("Pending","gr"));G("f-units").className="";}
+  /* Capacity */
+  if(S.capacity){H("ac-cap",A("⚡ "+S.capacity+" kW"));H("st-cap",B("✓ Calculated","g"));H("ac-gen",A("~"+(S.capacity*1400).toLocaleString("en-IN")+" kWh"));H("st-gen",B("✓ Estimated","b"));}
+  else if(S.units&&parseFloat(S.units)>0){H("ac-cap",A("Out of range","wn"));H("st-cap",B("⚠ Check","a"));H("ac-gen",A("--","mt"));H("st-gen",B("Waiting","gr"));}
+  else{H("ac-cap",A("--","mt"));H("st-cap",B("Waiting","gr"));H("ac-gen",A("--","mt"));H("st-gen",B("Waiting","gr"));}
+  /* Subsidy */
+  if(!S.type||!S.capacity){H("ac-sub",A("--","mt"));H("st-sub",B("Waiting","gr"));H("ac-subamt",A("--","mt"));H("st-subamt",B("Waiting","gr"));}
+  else if(S.subsidy>0){H("ac-sub",A("✔ Eligible"));H("st-sub",B("Eligible","g"));H("ac-subamt",A("₹78,000"));H("st-subamt",B("₹78,000","g"));}
+  else{H("ac-sub",A("✘ "+(S.type==="commercial"?"Commercial":"N/A"),"no"));H("st-sub",B("Not Eligible","r"));H("ac-subamt",A("₹0","no"));H("st-subamt",B("Nil","r"));}
+  /* Loan rows */
+  var is3=S.capacity===3;
+  var lr=["row-bank","row-subpay","row-tenure","row-princ","row-emi"];
+  if(!S.capacity){
+    lr.forEach(function(id){var r=G(id);if(r)r.style.opacity=".4";});
+    ["ac-bank","ac-subpay","ac-tenure","ac-princ","ac-emi"].forEach(function(id){H(id,A("--","mt"));});
+    ["st-bank","st-subpay","st-tenure","st-princ","st-emi"].forEach(function(id){H(id,B("Waiting","gr"));});
+  }else if(!is3){
+    lr.forEach(function(id){var r=G(id);if(r)r.style.opacity="1";});
+    G("bank-td").innerHTML='<div class="lnote">🏦 For <b>'+S.capacity+' kW</b> systems, loan should be applied directly at bank. EMI tool is for 3 kW only.</div>';
+    H("ac-bank",A("Apply at Bank","wn"));H("st-bank",B("At Bank","a"));
+    ["ac-subpay","ac-tenure","ac-princ","ac-emi"].forEach(function(id){H(id,A("N/A","mt"));});
+    ["st-subpay","st-tenure","st-princ","st-emi"].forEach(function(id){H(id,B("N/A","gr"));});
+  }else{
+    lr.forEach(function(id){var r=G(id);if(r)r.style.opacity="1";});
+    var bt=G("bank-td");
+    if(!bt.querySelector("select")){
+      bt.innerHTML='<select id="f-bank" onchange="recalc()"><option value="">-- Select Bank --</option><option value="1">State Bank of India</option><option value="2">Canara Bank</option><option value="3">Bank of Baroda</option><option value="4">Union Bank of India</option><option value="5">Andhra Pradesh Grameena Bank</option></select>';
+    }
+    G("f-bank").value=S.bankId?String(S.bankId):"";
+    if(S.bankId){
+      H("ac-bank",A(BANKS[S.bankId].name.split(" ").slice(0,3).join(" ")));H("st-bank",B("✓ Selected","g"));
+      H("ac-subpay",A(S.subpay==="yes"?"✓ Deducted":"Full principal"));H("st-subpay",B(S.subpay==="yes"?"Deducted":"Full",S.subpay==="yes"?"g":"a"));
+      H("ac-tenure",A(S.tenure+" yrs @ 6%"));H("st-tenure",B("✓ Set","g"));
+      H("ac-princ",A(fmtSym(S.effP)));H("st-princ",B("✓ Calculated","g"));
+      H("ac-emi",'<span class="ac hi">'+fmtSym(S.emi)+'/mo</span>');H("st-emi",B("✓ Calculated","g"));
+    }else{
+      H("ac-bank",A("--","mt"));H("st-bank",B("Select Bank","a"));
+      H("ac-subpay",A("--","mt"));H("st-subpay",B("Waiting","gr"));
+      H("ac-tenure",A(S.tenure+" yrs"));H("st-tenure",B("Set: "+S.tenure+"yr","b"));
+      H("ac-princ",A("--","mt"));H("st-princ",B("Waiting","gr"));
+      H("ac-emi",A("--","mt"));H("st-emi",B("Waiting","gr"));
+    }
+  }
+  /* Summary cards */
+  var all=S.name&&ok&&S.type&&S.capacity;
+  G("summaryCards").className=all?"stat-row on":"stat-row";
+  if(all){
+    G("sc-cap").textContent=S.capacity+" kW";G("sc-gen").textContent="~"+(S.capacity*1400).toLocaleString("en-IN")+" kWh/yr";
+    G("sc-sub").textContent=S.subsidy>0?"₹78,000":"Nil";G("sc-subnote").textContent=S.subsidy>0?"PM Surya Ghar":(S.type==="commercial"?"Commercial":"N/A");
+    if(S.emi>0){G("sc-emi").textContent=fmtSym(S.emi);G("sc-eminote").textContent=S.tenure+" yrs @ 6%";G("sc-total").textContent=fmtSym(S.emi*S.tenure*12);G("sc-totalnote").textContent="Over "+S.tenure+" years";}
+    else{G("sc-emi").textContent=is3?"Select bank":"Apply at bank";G("sc-eminote").textContent=is3?"Choose below":S.capacity+" kW";G("sc-total").textContent="--";G("sc-totalnote").textContent="";}
+  }
+}
+
+// ══════════════════════════════════════════
+//  RESET
+// ══════════════════════════════════════════
+function resetForm(){
+  G("f-name").value="";G("f-mobile").value="";G("f-type").value="";G("f-units").value="";G("f-subpay").value="yes";G("f-tenure").value=10;
+  S.bankId=null;var bk=G("f-bank");if(bk)bk.value="";recalc();
+}
+
+// ══════════════════════════════════════════
+//  START PDF
+// ══════════════════════════════════════════
+function startPDF(){
+  var ok=/^[6-9]\d{9}$/.test(S.mobile);
+  if(!S.name){G("f-name").focus();alert("Please enter customer name.");return;}
+  if(!ok){G("f-mobile").focus();alert("Please enter a valid 10-digit mobile.");return;}
+  if(!S.type){G("f-type").focus();alert("Please select consumer type.");return;}
+  if(!S.capacity){G("f-units").focus();alert("Please enter valid monthly units (1–1200).");return;}
+  if(S.capacity===3&&!S.bankId){var bk=G("f-bank");if(bk)bk.focus();alert("Please select a bank.");return;}
+  var btn=G("btn-gen");btn.disabled=true;btn.textContent="Generating…";
+  setTimeout(function(){
+    try{buildPDF(S,true);}catch(e){alert("PDF error: "+e.message);console.error(e);}
+    btn.disabled=false;btn.innerHTML="📄 Download PDF Report";
+  },60);
+}
+
+// Convert SVG data URL → PNG data URL via canvas
+function svgToPng(svgDataUrl, w, h, cb){
+  try{
+    var img = new Image();
+    img.onload = function(){
+      var canvas = document.createElement("canvas");
+      canvas.width = w; canvas.height = h;
+      var ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, w, h);
+      cb(canvas.toDataURL("image/png"));
+    };
+    img.onerror = function(){ cb(null); };
+    img.src = svgDataUrl;
+  }catch(e){ cb(null); }
+}
+
+// ══════════════════════════════════════════
+//  BUILD PDF  (works for new AND saved reports)
+// ══════════════════════════════════════════
+function buildPDF(s,saveToList){
+  var jsPDF=window.jspdf.jsPDF;
+  var doc=new jsPDF({unit:"mm",format:"a4"});
+  var W=210,PH=297;
+  /* Background */
+  doc.setFillColor(244,253,244);doc.rect(0,0,W,PH,"F");
+  doc.setDrawColor(218,240,218);doc.setLineWidth(0.18);
+  for(var gx=0;gx<W;gx+=8)doc.line(gx,0,gx,PH);
+  for(var gy=0;gy<PH;gy+=8)doc.line(0,gy,W,gy);
+  /* Header bar */
+  doc.setFillColor(10,40,20);doc.rect(0,0,W,48,"F");
+  doc.setFillColor(18,55,28);doc.ellipse(W+18,-18,78,78,"F");
+  /* Logo — drawn with jsPDF text (no image needed) */
+  // Sun circle
+  doc.setFillColor(251,191,36); doc.circle(22,24,10,"F");
+  doc.setFillColor(254,240,138); doc.circle(22,24,5.5,"F");
+  doc.setDrawColor(251,191,36); doc.setLineWidth(1.4);
+  for(var sa=0;sa<360;sa+=45){var sr=sa*Math.PI/180;doc.line(22+13*Math.cos(sr),24+13*Math.sin(sr),22+17*Math.cos(sr),24+17*Math.sin(sr));}
+  // "BR RENEW" wordmark
+  doc.setTextColor(255,255,255);
+  doc.setFont("helvetica","bold"); doc.setFontSize(22);
+  doc.text("BR",38,20);
+  doc.setFont("helvetica","normal"); doc.setFontSize(22);
+  doc.setTextColor(134,239,172);
+  doc.text("RENEW",55,20);
+  // "SOLAR" subline
+  doc.setFont("helvetica","bold"); doc.setFontSize(9);
+  doc.setTextColor(212,168,57);
+  doc.text("SOLAR ENERGY SOLUTIONS",38,29);
+  // Gold underline
+  doc.setDrawColor(212,168,57); doc.setLineWidth(0.8);
+  doc.line(38,32,108,32);
+  /* Title */
+  doc.setTextColor(255,255,255);doc.setFont("helvetica","bold");doc.setFontSize(18);
+  doc.text("Solar Rooftop Installation Report",88,18);
+  doc.setFont("helvetica","normal");doc.setFontSize(9.2);doc.setTextColor(134,239,172);
+  doc.text("BR Renew Solar  |  PM Surya Ghar Muft Bijli Yojana  |  Andhra Pradesh",88,27);
+  doc.setTextColor(187,247,208);
+  doc.text("Generated: "+new Date().toLocaleDateString("en-IN",{weekday:"long",day:"2-digit",month:"long",year:"numeric"}),88,36);
+  var rid=s.rid||("AP-"+Date.now().toString(36).toUpperCase().slice(-6));
+  doc.setFontSize(7.5);doc.setTextColor(134,239,172);doc.text("Report ID: "+rid,W-14,38,{align:"right"});
+  var y=52,even=false,RH=7;
+  function sec(t,r,g,b){
+    doc.setFillColor(r,g,b);doc.roundedRect(12,y,W-24,9,2,2,"F");
+    doc.setFillColor(Math.min(r+25,255),Math.min(g+25,255),Math.min(b+25,255));doc.roundedRect(12,y,5,9,2,2,"F");
+    doc.setTextColor(255,255,255);doc.setFont("helvetica","bold");doc.setFontSize(9.5);doc.text(t,22,y+6.2);
+    y+=11;even=false;
+  }
+  function rw(l,v,hi){
+    if(hi){doc.setFillColor(210,252,218);doc.roundedRect(12,y-0.5,W-24,RH+1,1.5,1.5,"F");doc.setDrawColor(134,239,172);doc.setLineWidth(0.35);doc.roundedRect(12,y-0.5,W-24,RH+1,1.5,1.5,"S");}
+    else if(even){doc.setFillColor(247,253,247);doc.rect(12,y-0.5,W-24,RH+1,"F");}
+    even=!even;
+    doc.setTextColor(75,75,75);doc.setFont("helvetica","bold");doc.setFontSize(8.5);doc.text(String(l),18,y+4.6);
+    doc.setFont("helvetica","normal");doc.setTextColor(hi?10:45,hi?80:45,hi?40:45);doc.text(String(v),118,y+4.6);
+    doc.setDrawColor(208,238,208);doc.setLineWidth(0.2);doc.line(12,y+RH,W-12,y+RH);y+=RH;
+  }
+  sec("  Customer Details",15,80,42);
+  rw("Customer Name",s.name);rw("Mobile Number",s.mobile);
+  rw("Consumer Type",s.type==="residential"?"Residential":"Commercial");rw("Average Monthly Units",s.units+" kWh / month");y+=2;
+  sec("  System Proposal",12,105,135);
+  rw("Proposed Capacity",s.capacity+" kW");rw("Est. Annual Generation","~"+(s.capacity*1400).toLocaleString("en-IN")+" kWh / year");
+  rw("Approx. CO2 Offset","~"+(s.capacity*1.148).toFixed(1)+" tonnes / year");rw("Expected Annual Savings","~"+fmtINR(s.capacity*1400*6));y+=2;
+  sec("  Subsidy Eligibility",82,32,185);
+  if(s.subsidy>0){rw("Eligibility Status","ELIGIBLE — Subsidy Approved",true);rw("Subsidy Amount","Rs. 78,000",true);rw("Scheme","PM Surya Ghar Muft Bijli Yojana");rw("Grant Type","Central Government (Non-repayable)");}
+  else{rw("Eligibility Status","Not Eligible");rw("Reason",s.type==="commercial"?"Only Residential consumers are eligible":"Not applicable");}
+  y+=2;
+  sec("  Loan & EMI Details",162,62,12);
+  if(s.capacity!==3){
+    doc.setTextColor(185,28,28);doc.setFont("helvetica","bolditalic");doc.setFontSize(9.5);doc.text("For further details, loan should be applied at bank.",18,y+5);
+    doc.setFont("helvetica","normal");doc.setTextColor(110,110,110);doc.setFontSize(8.5);
+    doc.text("Note: EMI calculation available for 3 kW systems only.",18,y+12);
+    doc.text("For "+s.capacity+" kW, contact your nearest bank with PM Surya Ghar documents.",18,y+19);y+=24;
+  }else{
+    var bId=s.bankId,bNm=BANKS[bId]?BANKS[bId].name:"",gP=getPrin(bId),sa=(s.subpay==="yes"&&s.subsidy>0),eP=sa?gP-s.subsidy:gP,emi=calcEMI(eP,6,s.tenure),tp=emi*s.tenure*12,ti=tp-eP;
+    rw("Selected Bank",bNm);rw("Tentative Principal","Rs. "+gP.toLocaleString("en-IN"));
+    rw("Interest Rate","6.00% per annum (Concessional)");rw("Loan Tenure",s.tenure+" Years");
+    rw("Subsidy Applied",sa?"Yes  —  Rs. 78,000 deducted from principal":"No");rw("Effective Loan Principal","Rs. "+eP.toLocaleString("en-IN"));
+    rw("EMI Per Month","Rs. "+Math.round(emi).toLocaleString("en-IN"),true);
+    rw("Total Interest Payable","Rs. "+Math.round(ti).toLocaleString("en-IN"));rw("Total Amount Payable","Rs. "+Math.round(tp).toLocaleString("en-IN"),true);
+  }
+  /* Footer */
+  doc.setFillColor(10,40,20);doc.rect(0,PH-22,W,22,"F");doc.setFillColor(18,60,28);doc.rect(0,PH-22,5,22,"F");
+  doc.setTextColor(134,239,172);doc.setFont("helvetica","bold");doc.setFontSize(7.5);
+  doc.text("This report is a tentative estimate by BR Renew Solar. Final amounts subject to site inspection and bank approval.",W/2,PH-13,{align:"center"});
+  doc.setFont("helvetica","normal");doc.setTextColor(100,200,130);
+  doc.text("BR Renew Solar  |  pmsuryaghar.gov.in",W/2,PH-7,{align:"center"});
+  /* Save to list */
+  if(saveToList){
+    var bId2=s.bankId,gP2=bId2?getPrin(bId2):0,sa2=(s.subpay==="yes"&&s.subsidy>0),eP2=sa2?gP2-s.subsidy:gP2;
+    addReport({name:s.name,mobile:s.mobile,type:s.type,units:s.units,capacity:s.capacity,
+      subsidy:s.subsidy,bankId:bId2,bankName:bId2?BANKS[bId2].name:"",subpay:s.subpay,
+      tenure:s.tenure,effP:eP2,emi:s.emi,rid:rid});
+  }
+  doc.save("SolarReport_"+(s.name||"Customer").replace(/\s+/g,"_")+"_"+rid+".pdf");
+}
+
+// ══════════════════════════════════════════
+//  CUSTOMER LIST
+// ══════════════════════════════════════════
+function renderList(){
+  var q=(G("list-search").value||"").toLowerCase().trim();
+  var all=getReports();
+  G("list-badge").textContent=all.length+" Report"+(all.length!==1?"s":"");
+  var fil=all.filter(function(r){return !q||(r.name&&r.name.toLowerCase().includes(q))||(r.mobile&&r.mobile.includes(q));});
+  G("lcount").textContent=fil.length+" result"+(fil.length!==1?"s":"");
+  var el=G("rlist");
+  if(!fil.length){
+    el.innerHTML='<div class="empty-box"><div class="empty-icon">'+(q?"🔍":"📋")+'</div><div class="empty-t">'+(q?"No matching reports":"No reports yet")+'</div><div class="empty-s">'+(q?"Try a different search term":"Generate a report first using the New Report tab")+'</div></div>';
+    return;
+  }
+  el.innerHTML=fil.map(function(r,i){
+    var ini=(r.name||"?").split(" ").map(function(w){return w[0]||"";}).slice(0,2).join("").toUpperCase();
+    var emiTxt=r.emi>0?fmtSym(r.emi)+"/mo":"At Bank";
+    var bnkShort=r.bankName?(r.bankName.split(" ").slice(0,2).join(" ")):"";
+    return '<div class="rcard" style="animation-delay:'+(i*0.04)+'s">'+
+      '<div class="rcard-av">'+ini+'</div>'+
+      '<div class="rcard-info">'+
+        '<div class="rcard-name">'+esc(r.name)+'</div>'+
+        '<div class="rcard-mob">📱 '+r.mobile+'</div>'+
+        '<div class="rcard-tags">'+
+          '<span class="tag kw">⚡ '+r.capacity+' kW</span>'+
+          (r.subsidy>0?'<span class="tag sub">₹78,000 Subsidy</span>':'')+
+          (bnkShort?'<span class="tag bnk">'+esc(bnkShort)+'</span>':'')+
+          '<span class="tag dt">'+r.date+'</span>'+
+        '</div>'+
+      '</div>'+
+      '<div class="rcard-emi"><div class="rcard-emi-val">'+emiTxt+'</div><div class="rcard-emi-note">'+r.tenure+' yr loan</div></div>'+
+      '<div class="rcard-btns">'+
+        '<button class="rcbtn pdf" onclick="regenPDF('+r.id+')">📄 PDF</button>'+
+        '<button class="rcbtn del" onclick="askDelete('+r.id+')">🗑</button>'+
+      '</div>'+
+    '</div>';
+  }).join("");
+}
+
+var _delId=null;
+function askDelete(id){
+  _delId=id;
+  document.getElementById("del-modal").classList.add("on");
+  G("m-del-btn").onclick=function(){delReport(_delId);closeModal();renderList();};
+}
+function closeModal(){ document.getElementById("del-modal").classList.remove("on"); }
+
+function regenPDF(id){
+  var r=getReports().find(function(x){return x.id===id;});
+  if(!r)return;
+  var snap={name:r.name,mobile:r.mobile,type:r.type,units:r.units,capacity:r.capacity,
+    subsidy:r.subsidy,bankId:r.bankId,subpay:r.subpay,tenure:r.tenure,
+    grossP:r.bankId?getPrin(r.bankId):0,effP:r.effP||0,emi:r.emi||0,rid:r.rid};
+  try{buildPDF(snap,false);}catch(e){alert("PDF error: "+e.message);}
+}
+
+// ══════════════════════════════════════════
+//  ADMIN
+// ══════════════════════════════════════════
+var adminIn=false;
+function tryLogin(){
+  var p=G("a-pass").value;
+  if(p===ADMIN_PWD){
+    adminIn=true;G("admin-login").style.display="none";G("admin-dash").style.display="block";
+    G("nav-logout").classList.add("show");G("a-pass").value="";renderAdmin();
+  }else{G("a-err").className="lerr s";G("a-pass").value="";setTimeout(function(){G("a-err").className="lerr";},2500);}
+}
+function adminLogout(){
+  adminIn=false;G("admin-login").style.display="block";G("admin-dash").style.display="none";
+  G("nav-logout").classList.remove("show");
+}
+function renderAdmin(){
+  var all=getReports();
+  var subC=all.filter(function(r){return r.subsidy>0;}).length;
+  var kw3=all.filter(function(r){return r.capacity===3;}).length;
+  var resC=all.filter(function(r){return r.type==="residential";}).length;
+  G("da-total").textContent=all.length;G("da-subelig").textContent=subC;
+  G("da-3kw").textContent=kw3;G("da-subrev").textContent="₹"+(subC*78000).toLocaleString("en-IN");
+  G("da-res").textContent=resC;G("da-com").textContent=all.length-resC;
+  var tb=G("da-tbody");
+  if(!all.length){tb.innerHTML='<tr><td colspan="7" style="text-align:center;padding:22px;color:#9ca3af;font-size:.83rem;">No reports generated yet</td></tr>';return;}
+  tb.innerHTML=all.slice(0,25).map(function(r,i){
+    return'<tr>'+
+      '<td style="color:#9ca3af;">'+(i+1)+'</td>'+
+      '<td style="font-weight:700;">'+esc(r.name)+'</td>'+
+      '<td>'+r.mobile+'</td>'+
+      '<td><span class="bx g">'+r.capacity+' kW</span></td>'+
+      '<td>'+(r.subsidy>0?'<span class="bx g">₹78,000</span>':'<span class="bx gr">Nil</span>')+'</td>'+
+      '<td style="font-weight:700;color:#d97706;">'+(r.emi>0?fmtSym(r.emi):"Bank")+'</td>'+
+      '<td style="color:#9ca3af;font-size:.77rem;">'+r.date+'</td>'+
+    '</tr>';
+  }).join("");
+}
+
+recalc();
+</script>
+</body>
+</html>
