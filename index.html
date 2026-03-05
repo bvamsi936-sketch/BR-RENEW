@@ -74,7 +74,14 @@ body{font-family:'Outfit',sans-serif;background:var(--cream);color:var(--ink);}
 .ntab.on{background:rgba(212,168,57,.18);color:var(--gold2);border:1px solid rgba(212,168,57,.3);}
 .ntab-icon{font-size:.9rem;}
 
-.nav-logout{
+.nav-secret{
+  width:30px;height:30px;border-radius:8px;border:none;
+  background:transparent;color:rgba(255,255,255,.15);
+  font-size:.85rem;cursor:pointer;transition:all .2s;
+  margin-left:4px;
+}
+.nav-secret:hover{color:rgba(255,255,255,.45);background:rgba(255,255,255,.06);}
+
   padding:7px 13px;border-radius:8px;
   border:1px solid rgba(239,68,68,.3);
   background:rgba(239,68,68,.08);color:#fca5a5;
@@ -312,9 +319,10 @@ select{cursor:pointer;}
     </a>
     <div class="nav-tabs">
       <button class="ntab on" id="tab-report" onclick="goTo('report')"><span class="ntab-icon">📋</span>New Report</button>
-      <button class="ntab" id="tab-list"   onclick="goTo('list')">  <span class="ntab-icon">👥</span>Customers</button>
-      <button class="ntab" id="tab-admin"  onclick="goTo('admin')"> <span class="ntab-icon">📊</span>Admin</button>
+      <button class="ntab" id="tab-list"   style="display:none" onclick="goTo('list')">  <span class="ntab-icon">👥</span>Customers</button>
+      <button class="ntab" id="tab-admin"  style="display:none" onclick="goTo('admin')"> <span class="ntab-icon">📊</span>Admin</button>
     </div>
+    <button class="nav-secret" id="nav-secret" onclick="showAdminLogin()" title="">🔒</button>
     <button class="nav-logout" id="nav-logout" onclick="adminLogout()">🚪 Logout</button>
   </div>
 </nav>
@@ -560,7 +568,8 @@ function goTo(name){
   document.querySelectorAll('.scr').forEach(function(s){s.classList.remove('on');});
   document.querySelectorAll('.ntab').forEach(function(b){b.classList.remove('on');});
   document.getElementById('scr-'+name).classList.add('on');
-  document.getElementById('tab-'+name).classList.add('on');
+  var tab=document.getElementById('tab-'+name);
+  if(tab) tab.classList.add('on');
   if(name==='list') renderList();
   if(name==='admin' && document.getElementById('admin-dash').style.display==='block') renderAdmin();
 }
@@ -877,16 +886,34 @@ function regenPDF(id){
 //  ADMIN
 // ══════════════════════════════════════════
 var adminIn=false;
+function showAdminLogin(){
+  goTo('admin');
+}
 function tryLogin(){
   var p=G("a-pass").value;
   if(p===ADMIN_PWD){
-    adminIn=true;G("admin-login").style.display="none";G("admin-dash").style.display="block";
-    G("nav-logout").classList.add("show");G("a-pass").value="";renderAdmin();
+    adminIn=true;
+    G("admin-login").style.display="none";
+    G("admin-dash").style.display="block";
+    // Reveal hidden tabs
+    G("tab-list").style.display="flex";
+    G("tab-admin").style.display="flex";
+    G("nav-logout").classList.add("show");
+    G("nav-secret").style.display="none";
+    G("a-pass").value="";
+    renderAdmin();
   }else{G("a-err").className="lerr s";G("a-pass").value="";setTimeout(function(){G("a-err").className="lerr";},2500);}
 }
 function adminLogout(){
-  adminIn=false;G("admin-login").style.display="block";G("admin-dash").style.display="none";
+  adminIn=false;
+  G("admin-login").style.display="block";
+  G("admin-dash").style.display="none";
+  // Hide tabs again
+  G("tab-list").style.display="none";
+  G("tab-admin").style.display="none";
   G("nav-logout").classList.remove("show");
+  G("nav-secret").style.display="";
+  goTo('report');
 }
 function renderAdmin(){
   var all=getReports();
